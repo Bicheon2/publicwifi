@@ -1,58 +1,102 @@
 package com.example.publicwifi.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.example.publicwifi.network.RetrofitInstance
+import android.app.Application
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
+import com.example.publicwifi.api.RetrofitHelper
+import com.example.publicwifi.api.dto.LoginDtoParams
+import com.example.publicwifi.api.dto.SignUpDtoParams
+import com.example.publicwifi.data.UserDataStore
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import com.example.publicwifi.network.ApiResponse
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(application: Application): AndroidViewModel(application) {
+    private var _userid by mutableStateOf("")
+    val userid: String
+        get() = _userid
+    private var _password by mutableStateOf("")
+    val password: String
+        get() = _password
+    private var _phoneNumber by mutableStateOf("")
+    val phoneNumber: String
+        get() = _phoneNumber
 
-    // 회원가입 함수
-    fun registerUser(userid: String, password: String, phone_number: String) {
-        val call = RetrofitInstance.apiService.registerUser(userid, password, phone_number)
-        call.enqueue(object : Callback<ApiResponse> {
-            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+    fun setUserId(userid: String) {
+        _userid = userid
+    }
+    fun setPassword(password: String) {
+        _password = password
+    }
+    fun setPhoneNumber(phoneNumber: String) {
+        _phoneNumber = phoneNumber
+    }
+
+    // 로컬 디비
+    private val userDataStore = UserDataStore(application.applicationContext)
+    
+    // api
+    private val api = RetrofitHelper.getAuthService()
+    
+    // 코루틴
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+
+    fun requestLoginApi(
+        userid: String,
+        password: String,
+    ) {
+        api.login(LoginDtoParams(userid, password)).enqueue(object : retrofit2.Callback<String?> {
+            override fun onResponse(call: retrofit2.Call<String?>, response: retrofit2.Response<String?>) {
                 if (response.isSuccessful) {
-                    // 회원가입 성공 처리
-                    val apiResponse = response.body()
-                    // UI 업데이트 및 메시지 표시
-                } else {
-                    // 회원가입 실패 처리
-                    // 오류 메시지 표시 등 필요한 작업 수행
-                    handleError(response.errorBody()?.string())
+                    val result = response.body()
+                    Log.d("authViewModel", "onResponse: $result")
+                    Log.d("authViewModel","로그인 성공")
+                    // Todo: 회원 정보 데이터베이스 저장
+                    coroutineScope.launch(Dispatchers.IO) {
+                        userDataStore.saveUserData(userid, "010-1234-5678")
+                    }
+                }else {
+                    Log.d("authViewModel", "onResponse: ${response.errorBody()}")
                 }
             }
-
-            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                // 네트워크 오류 등 실패 처리
-                handleError(t.message)
-                // 오류 메시지 표시 등 필요한 작업 수행
+            override fun onFailure(call: retrofit2.Call<String?>, t: Throwable) {
+                Log.d("authViewModel", "onFailure: ${t.message}")
             }
         })
     }
 
-    // 로그인 함수
-    fun loginUser(userid: String, password: String) {
-        val call = RetrofitInstance.apiService.loginUser(userid, password)
-        call.enqueue(object : Callback<ApiResponse> {
-            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+    fun requestSignUpApi(
+        userid: String,
+        password: String,
+        phoneNumber: String,
+    ) {
+        api.signUp(SignUpDtoParams(userid, password, phoneNumber)).enqueue(object : retrofit2.Callback<String?> {
+            override fun onResponse(
+                call: retrofit2.Call<String?>,
+                response: retrofit2.Response<String?>
+            ) {
                 if (response.isSuccessful) {
-                    // 로그인 성공 처리
-                    val apiResponse = response.body()
-                    // UI 업데이트 및 메시지 표시
-                } else {
-                    // 로그인 실패 처리
-                    // 오류 메시지 표시 등 필요한 작업 수행
-                    handleError(response.errorBody()?.string())
+                    val result = response.body()
+                    Log.d("authViewModel", "onResponse: $result")
+                    Log.d("authViewModel", "회원가입 성공")
+                    // Todo: 회원 정보 데이터베이스 저장
+                    coroutineScope.launch(Dispatchers.IO) {
+                        userDataStore.saveUserData(userid, phoneNumber)
+                    }
+                }else {
+                    Log.d("authViewModel", "onResponse: ${response.errorBody()}")
                 }
             }
 
-            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                // 네트워크 오류 등 실패 처리
-                handleError(t.message)
-                // 오류 메시지 표시 등 필요한 작업 수행
+            override fun onFailure(call: Call<String?>, t: Throwable) {
+                Log.d("authViewModel", "onFailure: ${t.message}")
             }
         })
     }

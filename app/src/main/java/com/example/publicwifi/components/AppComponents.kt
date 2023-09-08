@@ -41,6 +41,7 @@ import com.example.publicwifi.ui.theme.GrayColor
 import com.example.publicwifi.ui.theme.Primary
 import com.example.publicwifi.ui.theme.Secondary
 import com.example.publicwifi.ui.theme.TextColor
+import com.example.publicwifi.viewmodel.AuthViewModel
 
 
 @Composable
@@ -78,7 +79,11 @@ fun HeadingTextComponent(value: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTextFieldComponent(labelValue: String) {
+fun MyTextFieldComponent(
+    labelValue: String,
+    text: String,
+    onTextChange: (String) -> Unit
+) {
 
     val textValue = remember {
         mutableStateOf("")
@@ -97,9 +102,9 @@ fun MyTextFieldComponent(labelValue: String) {
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         singleLine = true,
         maxLines = 1,
-        value = textValue.value,
+        value = text,
         onValueChange = {
-            textValue.value = it
+            onTextChange(it)
         }
     )
 }
@@ -156,7 +161,7 @@ fun ClickableTextComponent(value: String, onTextSelected : (String) -> Unit) {
 }
 
 @Composable
-fun ButtonComponent(value: String, onClick: () -> Unit) {
+fun ButtonComponent(value: String = "", onClick: () -> Unit = {}) {
     Button(
         modifier = Modifier
             .fillMaxWidth()

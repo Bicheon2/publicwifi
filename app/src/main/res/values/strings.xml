@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">PublicWiFi</string>
+    <string name="hello">Hey there, </string>
+    <string name="create_account">Create an Account </string>
+    <string name="welcome">Welcome Back</string>
+    <string name="id">아이디</string>
+    <string name="passwd">패스워드</string>
+    <string name="phone_number">휴대폰번호</string>
+    <string name="terms_and_conditions">By continuing you accept Our Privacy Policy and Term of Use</string>
+    <string name="terms_and_conditions_header">Term of Use</string>
+    <string name="register">회원가입</string>
+    <string name="login">로그인</string>
+    <string name="forgot_password">비밀번호를 잃어버리셨나요?</string>
+    <string name="or">or</string>
+    <string name="go_to_login">이미 계정이 있으신가요? 로그인</string>
+</resources>

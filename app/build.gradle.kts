@@ -1,6 +1,9 @@
 plugins {
+    id("com.google.dagger.hilt.android")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    // kotlin kapt
+    id("kotlin-kapt")
 }
 
 android {
@@ -30,11 +33,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -71,8 +74,26 @@ dependencies {
     implementation ("androidx.compose.ui:ui:1.0.0")
     implementation ("androidx.compose.ui:ui-tooling:1.0.0")
     implementation ("androidx.compose.runtime:runtime:1.0.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
+    implementation ("com.squareup.okhttp3:okhttp-urlconnection:4.9.0")
 
     // Retrofit 및 관련 라이브러리 의존성
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+
+    implementation("androidx.compose.material:material")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.google.android.material:material:1.9.0")
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("com.google.accompanist:accompanist-webview:0.30.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.0")
 }

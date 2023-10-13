@@ -22,16 +22,13 @@ class MainActivity : ComponentActivity() {
             val userDataStore = UserDataStore(LocalContext.current)
             val isUserExist =
                 userDataStore.findUserInfo(UserDataStoreKey.USER_ID_KEY).collectAsState(initial = "")
-            if (isUserExist.value?.isNotEmpty() == true) {
-                PublicWifiMain()
-            } else {
-                PublicWifiAuth()
-            }
+            PublicWifiMain()
+//            if (isUserExist.value?.isNotEmpty() == true) {
+//                PublicWifiMain()
+//            } else {
+//                PublicWifiAuth()
+//            }
         }
     }
 }
 
-@Preview
-@Composable
-fun DefaultPreview() {
-}

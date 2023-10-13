@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     // kotlin kapt
     id("kotlin-kapt")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -96,4 +97,8 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.0")
+
+    // 구글맵
+    implementation("com.google.maps.android:maps-compose:2.11.4")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
 }

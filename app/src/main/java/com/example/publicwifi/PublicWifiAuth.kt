@@ -8,7 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.example.publicwifi.navgation.NavGraph
+import com.example.publicwifi.navgation.AuthNavGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,7 +18,7 @@ fun PublicWifiAuth() {
         Box(modifier = Modifier
             .padding(it)
             .fillMaxSize()) {
-            NavGraph(navController = navController)
+            AuthNavGraph(navController = navController)
         }
     }
 }

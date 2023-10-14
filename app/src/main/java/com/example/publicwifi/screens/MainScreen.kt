@@ -5,7 +5,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
 import android.util.Log
+import androidx.compose.runtime.collectAsState
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +17,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,16 +44,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.liveData
 import com.example.publicwifi.components.MapComponent
+import com.example.publicwifi.share.ShareApplication
 import com.example.publicwifi.ui.theme.Primary
 import com.example.publicwifi.ui.theme.Secondary
+import com.example.publicwifi.viewmodel.AuthViewModel
+import com.example.publicwifi.viewmodel.LifeCycleViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import dagger.hilt.android.internal.Contexts.getApplication
+import kotlinx.coroutines.delay
+import java.security.AccessController.checkPermission
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+    val lifeCycleViewModel: LifeCycleViewModel = hiltViewModel()
     var location by remember { mutableStateOf(false) }
     var latLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val context = LocalContext.current
@@ -88,6 +106,7 @@ fun MainScreen() {
                     fontWeight = FontWeight.Bold
                 )
                 WifiMapBox(modifier = Modifier, latLng = latLng)
+                WifiListBox(context = context)
             }
 
         }
@@ -171,12 +190,79 @@ fun WifiMapBoxPreview() {
 }
 
 @Composable
-fun WifiListBox(modifier: Modifier = Modifier) {
+fun WifiListBox(
+    context: Context = LocalContext.current,
+    modifier: Modifier = Modifier,
+    wifiScanCheck: Boolean = true
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+//        <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+//        <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+        val currentActivity = LocalView.current.context as? Activity
+        val wifiPermission = Manifest.permission.ACCESS_WIFI_STATE
+        // 권한체크
+        val hasLocationPermission = ContextCompat.checkSelfPermission(
+            context,
+            wifiPermission
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasLocationPermission) {
+            currentActivity?.let {
+                ActivityCompat.requestPermissions(it, arrayOf(wifiPermission), 0)
+            }
+        }
+
+//        var wifiScanResult: MutableList<ScanResult> = mutableListOf()
+        var wifiScanResult by remember { mutableStateOf(mutableListOf<ScanResult>()) }
+        val wifiManager: WifiManager = LocalView.current.context.applicationContext.getSystemService(
+            Context.WIFI_SERVICE
+        ) as WifiManager
+        LaunchedEffect(Unit) {
+            while (true) {
+                Log.d("WifiListBox", "Wifi Scan")
+                wifiScanResult = wifiManager.scanResults
+                delay(3000)
+
+                if(!wifiScanCheck) {
+                    break
+                }
+            }
+        }
+
+        wifiScanResult.forEach {
+            Column {
+                Text(text = it.SSID)
+                Log.d("WifiListBox", it.BSSID)
+            }
+        }
+
+
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WifiListBoxPreview() {
+    WifiListBox(modifier = Modifier)
 }
 
 // 위치정보 가져오는 함수
 @Composable
 fun getCurrentLocation(context: Context, onLocationReceived: (Location?) -> Unit) {
+    // 라이프 사이클 체크
+    val lifecycleViewModel: LifeCycleViewModel = hiltViewModel()
+    val isAppInForeground by lifecycleViewModel.isAppInForeground.collectAsState()
+    if (isAppInForeground) {
+        // 앱이 포그라운드에 있음
+        Log.d("getCurrentLocation", "앱이 포그라운드에 있음")
+    } else {
+        // 앱이 백그라운드에 있음
+        Log.d("getCurrentLocation", "앱이 백그라운드에 있음")
+    }
     val currentActivity = LocalView.current.context as? Activity
     // 권한체크
     val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
@@ -205,3 +291,4 @@ fun getCurrentLocation(context: Context, onLocationReceived: (Location?) -> Unit
         onLocationReceived(null)
     }
 }
+

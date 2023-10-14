@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.example.publicwifi.api.dto.WifiDto
 import com.example.publicwifi.screens.WifiMapBox
 import com.example.publicwifi.screens.WifiNearbySearchButton
 import com.example.publicwifi.ui.theme.Primary
@@ -72,6 +73,7 @@ fun MapComponent(
     latLngList: Array<LatLng> = ARRAY_LATLNG,
     zoom: Float = 10f,
     context: Context = LocalContext.current,
+    wifiList: List<WifiDto?> = listOf(),
 ) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(startLatLng, zoom)
@@ -84,11 +86,11 @@ fun MapComponent(
             state = MarkerState(position = startLatLng),
             title = "현재 위치",
         )
-        if (latLngList.isNotEmpty()) {
-            latLngList.forEachIndexed { index, latLng ->
+        if (wifiList.isNotEmpty()) {
+            wifiList.forEachIndexed { index, wifiData ->
 
                 MarkerInfoWindow(
-                    state = MarkerState(position = latLng),
+                    state = MarkerState(position = LatLng(wifiData?.lat!!.toDouble(), wifiData?.lng!!.toDouble())),
                     icon = bitmapDescriptorFromVector(
                         context = context,
                         vectorResourceId = com.example.publicwifi.R.drawable.wifi_svgrepo_com,
@@ -125,7 +127,7 @@ fun MapComponent(
                             modifier = Modifier.padding(it)
                         ) {
                             Text(
-                                text = "Customizing a marker's info window",
+                                text = "${wifiData?.ssid}",
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .padding(top = 10.dp, start = 25.dp, end = 25.dp)

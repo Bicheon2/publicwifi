@@ -73,12 +73,10 @@ import kotlinx.coroutines.withContext
 @Composable
 fun MainScreen() {
     var wifiViewModel: WifiViewModel = hiltViewModel()
+
+    // 서버에서 불러온 와이파이 목록
     val wifiList by wifiViewModel.wifiList.collectAsState()
-    LaunchedEffect(key1 = Unit) {
-        withContext(Dispatchers.IO){ wifiViewModel.getWifiList()}
-        Log.d("MainScreenn", "$wifiList")
-    }
-//    var wifiList: List<WifiDto?> = listOf()
+
     var location by remember { mutableStateOf(false) }
     var latLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val context = LocalContext.current
@@ -117,11 +115,11 @@ fun MainScreen() {
             ) {
                 WifiNearbySearchButton(
                     modifier = Modifier.padding(16.dp),
-                    onClick = { Log.d("MainScreen", "WifiNearbySearchButton Clicked") },
+                    onClick = { wifiViewModel.getWifiList() },
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
-                WifiMapBox(modifier = Modifier, latLng = latLng)
+                WifiMapBox(modifier = Modifier, latLng = latLng, wifiList = wifiList)
                 WifiListBox(context = context, wifiList = wifiList)
             }
 
@@ -189,13 +187,17 @@ fun WifiNearbySearchButtonPreview() {
 
 
 @Composable
-fun WifiMapBox(modifier: Modifier = Modifier, latLng: LatLng = LatLng(35.159545, 126.852601)) {
+fun WifiMapBox(
+    modifier: Modifier = Modifier,
+    latLng: LatLng = LatLng(35.159545, 126.852601),
+    wifiList: List<WifiDto?> = listOf()
+    ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(300.dp)
     ) {
-        MapComponent(startLatLng = latLng, zoom = 15f)
+        MapComponent(startLatLng = latLng, zoom = 15f, wifiList = wifiList)
     }
 }
 

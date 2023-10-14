@@ -134,6 +134,8 @@ class ShareApplication : Application() {
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
     }
 
+
+
     // 위치정보
     fun requestLocation(context: Context, callback: (Location) -> Unit, errorCallback: () -> Unit) {
         if (ContextCompat.checkSelfPermission(
@@ -153,6 +155,7 @@ class ShareApplication : Application() {
             errorCallback()
         }
     }
+
 
     // 주소정보
     fun getAddressFromLocation(

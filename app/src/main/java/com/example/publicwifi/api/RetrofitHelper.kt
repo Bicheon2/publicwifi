@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitHelper {
     private val retrofit: Retrofit
-    private const val baseUrl: String = "http://localhost:8000/"
+    private const val baseUrl: String = "http://192.168.25.62:3000/"
 
     val nullOnEmptyConverterFactory = object : Converter.Factory() {
         fun converterFactory() = this
@@ -45,5 +45,9 @@ object RetrofitHelper {
 
     fun getAuthService(): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
+    }
+
+    fun getWifiService(): WifiApiService {
+        return retrofit.create(WifiApiService::class.java)
     }
 }

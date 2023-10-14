@@ -7,7 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import com.example.publicwifi.api.RetrofitHelper
+import com.example.publicwifi.api.dto.LoginDto
 import com.example.publicwifi.api.dto.LoginDtoParams
+import com.example.publicwifi.api.dto.SignUpDto
 import com.example.publicwifi.api.dto.SignUpDtoParams
 import com.example.publicwifi.data.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,8 +54,8 @@ class AuthViewModel @Inject constructor(application: Application): AndroidViewMo
         userid: String,
         password: String,
     ) {
-        api.login(LoginDtoParams(userid, password)).enqueue(object : retrofit2.Callback<String?> {
-            override fun onResponse(call: retrofit2.Call<String?>, response: retrofit2.Response<String?>) {
+        api.login(LoginDtoParams(userid, password)).enqueue(object : retrofit2.Callback<LoginDto?> {
+            override fun onResponse(call: retrofit2.Call<LoginDto?>, response: retrofit2.Response<LoginDto?>) {
                 if (response.isSuccessful) {
                     val result = response.body()
                     Log.d("authViewModel", "onResponse: $result")
@@ -66,7 +68,7 @@ class AuthViewModel @Inject constructor(application: Application): AndroidViewMo
                     Log.d("authViewModel", "onResponse: ${response.errorBody()}")
                 }
             }
-            override fun onFailure(call: retrofit2.Call<String?>, t: Throwable) {
+            override fun onFailure(call: retrofit2.Call<LoginDto?>, t: Throwable) {
                 Log.d("authViewModel", "onFailure: ${t.message}")
             }
         })
@@ -77,10 +79,10 @@ class AuthViewModel @Inject constructor(application: Application): AndroidViewMo
         password: String,
         phoneNumber: String,
     ) {
-        api.signUp(SignUpDtoParams(userid, password, phoneNumber)).enqueue(object : retrofit2.Callback<String?> {
+        api.signUp(SignUpDtoParams(userid, password, phoneNumber)).enqueue(object : retrofit2.Callback<SignUpDto?> {
             override fun onResponse(
-                call: retrofit2.Call<String?>,
-                response: retrofit2.Response<String?>
+                call: retrofit2.Call<SignUpDto?>,
+                response: retrofit2.Response<SignUpDto?>
             ) {
                 if (response.isSuccessful) {
                     val result = response.body()
@@ -95,7 +97,7 @@ class AuthViewModel @Inject constructor(application: Application): AndroidViewMo
                 }
             }
 
-            override fun onFailure(call: Call<String?>, t: Throwable) {
+            override fun onFailure(call: Call<SignUpDto?>, t: Throwable) {
                 Log.d("authViewModel", "onFailure: ${t.message}")
             }
         })
